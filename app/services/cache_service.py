@@ -14,7 +14,7 @@ async def get_redis() -> redis.Redis:
     global redis_client
     if redis_client is None:
         redis_client = redis.from_url(
-            settings.REDIS_URL,
+            settings.redis_url,
             encoding="utf-8",
             decode_responses=True
         )

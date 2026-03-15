@@ -8,17 +8,23 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Настройки приложения"""
 
-    # Database
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
+    # Database — компоненты для локальной сборки URL
+    POSTGRES_USER: Optional[str] = None
+    POSTGRES_PASSWORD: Optional[str] = None
+    POSTGRES_DB: Optional[str] = None
     POSTGRES_HOST: str = "db"
     POSTGRES_PORT: int = 5432
 
-    # Redis
+    # Если задан напрямую (например, Render инжектирует автоматически)
+    DATABASE_URL: Optional[str] = None
+
+    # Redis — компоненты для локальной сборки URL
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
+
+    # Если задан напрямую
+    REDIS_URL: Optional[str] = None
 
     # Security
     SECRET_KEY: str
@@ -49,7 +55,9 @@ class Settings(BaseSettings):
 
     @computed_field
     @property
-    def DATABASE_URL(self) -> str:
+    def db_url(self) -> str:
+        if self.DATABASE_URL:
+            return self.DATABASE_URL
         return (
             f"postgresql://{self.POSTGRES_USER}"
             f":{self.POSTGRES_PASSWORD}"
@@ -59,7 +67,9 @@ class Settings(BaseSettings):
 
     @computed_field
     @property
-    def REDIS_URL(self) -> str:
+    def redis_url(self) -> str:
+        if self.REDIS_URL:
+            return self.REDIS_URL
         return (
             f"redis://{self.REDIS_HOST}"
             f":{self.REDIS_PORT}/{self.REDIS_DB}"
